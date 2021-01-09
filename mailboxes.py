@@ -7,26 +7,21 @@ from typing import Tuple, List
 
 class Solution:
     def minDistance(self, houses: List[int], k: int) -> int:
-        self.houses = sorted(houses)
-        return self.solve(0, len(houses), k)
+        houses.sort()
 
-    @lru_cache
-    def solve(self, idx0, idx1, k: int) -> int:
-        if idx1 - idx0 < k:
-            print(f"return inf")
-            return float("inf")
-        if k == 1:
-            # print(idx0, idx1)
-            m = int(median(self.houses[idx0:idx1]))
-            # print(f"{houses=}, {m=}")
-            return sum(abs(x - m) for x in self.houses[idx0:idx1])
-        case_1 = (
-            self.solve(idx0, i, k - 1) + self.solve(i, idx1, 1)
-            for i in range(idx0 + k - 1, idx1)
-        )
-        res = min(case_1)
-        # print(res)
-        return res
+        @lru_cache(None)
+        def solve(idx, n, k):
+            if k == 1:
+                mid = houses[(n + idx) // 2]
+                return sum([abs(houses[i] - mid) for i in range(idx, n + 1)])
+            result = float("inf")
+            for i in range(idx, n + 1):
+                if n - i < k - 1:
+                    break
+                result = min(result, solve(idx, i, 1) + solve(i + 1, n, k - 1))
+            return result
+
+        return solve(0, len(houses) - 1, k)
 
 
 s = Solution()
